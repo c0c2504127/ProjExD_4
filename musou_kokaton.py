@@ -436,8 +436,8 @@ def main():
                 score.value += 1
             if bird.state == "normal":  # こうかとんと衝突した爆弾リスト
                 if emps:
-                exps.add(Explosion(bomb,50))
-                continue
+                    exps.add(Explosion(bomb,50))
+                    continue
             life.num -= 1  # 残機数(ライフ)を1減らす
             if life.num <= 0:
                 bird.change_img(8, screen)  # こうかとん悲しみエフェクト
@@ -449,10 +449,10 @@ def main():
                 continue
 
             bird.change_img(8, screen)  # こうかとん悲しみエフェクト
-                score.update(screen)
-                pg.display.update()
-                time.sleep(2)
-                return
+            score.update(screen)
+            pg.display.update()
+            time.sleep(2)
+            return
 
         for bomb in pg.sprite.groupcollide(bombs,shields, True, False).keys():
             exps.add(Explosion(bomb, 50)) #爆発
