@@ -149,7 +149,7 @@ class Beam(pg.sprite.Sprite):
     """
     ビームに関するクラス
     """
-    def __init__(self, bird: Bird):
+    def __init__(self, bird: Bird, angle0: int = 0):
         """
         ビーム画像Surfaceを生成する
         引数 bird：ビームを放つこうかとん
@@ -157,6 +157,7 @@ class Beam(pg.sprite.Sprite):
         super().__init__()
         self.vx, self.vy = bird.dire
         angle = math.degrees(math.atan2(-self.vy, self.vx))
+        angle += angle0
         self.image = pg.transform.rotozoom(pg.image.load(f"fig/beam.png"), angle, 1.0)
         self.vx = math.cos(math.radians(angle))
         self.vy = -math.sin(math.radians(angle))
@@ -174,6 +175,19 @@ class Beam(pg.sprite.Sprite):
         if check_bound(self.rect) != (True, True):
             self.kill()
 
+class NeoBeam:
+    """
+    複数方向にビームを発射するクラス
+    """
+    def __init__(self, bird: Bird, num: int):
+        self.beams = self.gen_beams(bird, num)
+
+    def gen_beams(self, bird: Bird, num: int) -> list:
+        beams = []
+        step = 100 // (num -1)
+        for angle in range(-50, +51, 25):
+            beams.append(Beam(bird, angle))
+        return beams
 
 class Explosion(pg.sprite.Sprite):
     """
@@ -261,7 +275,6 @@ class Emp(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.life = 2.5
 
-        
         for emy in emys:
             emy.interval = float("inf")
             emy.image = pg.transform.laplacian(emy.image)
@@ -392,7 +405,11 @@ def main():
                     shields.add(Shield(bird, 400)) #発動時間
                     score.value -= 50 #消費スコア
             if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
-                beams.add(Beam(bird))
+                if event.mod & pg.KMOD_LSHIFT:
+                    neo_beam = NeoBeam(bird, 5)
+                    beams.add(neo_beam.beams)
+                else:
+                    beams.add(Beam(bird))
 
             if event.type == pg.KEYDOWN and event.key == pg.K_RSHIFT and (score.value >= 100):
                 bird.hyper_life = 500
